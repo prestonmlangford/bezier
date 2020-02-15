@@ -1,0 +1,25 @@
+Cubic for B
+-4*ax*bx + 2*ax*ax - 4*ay*by + 2*ay*ay + 2*bx*bx + 2*by*by + 
+t*(14*ax*bx - 2*ax*cx - 6*ax*ax + 14*ay*by - 2*ay*cy - 6*ay*ay + 2*bx*cx - 8*bx*bx + 2*by*cy - 8*by*by) + 
+t*t*(-18*ax*bx + 6*ax*cx + 6*ax*ax - 18*ay*by + 6*ay*cy + 6*ay*ay - 6*bx*cx + 12*bx*bx - 6*by*cy + 12*by*by) + 
+t*t*t*(8*ax*bx - 4*ax*cx - 2*ax*ax + 8*ay*by - 4*ay*cy - 2*ay*ay + 8*bx*cx - 8*bx*bx + 8*by*cy - 8*by*by - 2*cx*cx - 2*cy*cy)
+
+Cubic for D
+-2*ax*bx - 2*ax*dx + 2*ax*ax - 2*ay*by - 2*ay*dy + 2*ay*ay + 2*bx*dx + 2*by*dy + 
+t*(12*ax*bx - 2*ax*cx + 2*ax*dx - 6*ax*ax + 12*ay*by - 2*ay*cy + 2*ay*dy - 6*ay*ay - 4*bx*dx - 4*bx*bx - 4*by*dy - 4*by*by + 2*cx*dx + 2*cy*dy) + 
+t*t*(-18*ax*bx + 6*ax*cx + 6*ax*ax - 18*ay*by + 6*ay*cy + 6*ay*ay - 6*bx*cx + 12*bx*bx - 6*by*cy + 12*by*by) + 
+t*t*t*(8*ax*bx - 4*ax*cx - 2*ax*ax + 8*ay*by - 4*ay*cy - 2*ay*ay + 8*bx*cx - 8*bx*bx + 8*by*cy - 8*by*by - 2*cx*cx - 2*cy*cy)
+
+Quartic for B
+-2*ax*bx + ax*ax - 2*ay*by + ay*ay + bx*bx + by*by + 
+t*(8*ax*bx - 4*ax*ax + 8*ay*by - 4*ay*ay - 4*bx*bx - 4*by*by) + 
+t*t*(-14*ax*bx + 2*ax*cx + 6*ax*ax - 14*ay*by + 2*ay*cy + 6*ay*ay - 2*bx*cx + 8*bx*bx - 2*by*cy + 8*by*by) + 
+t*t*t*(12*ax*bx - 4*ax*cx - 4*ax*ax + 12*ay*by - 4*ay*cy - 4*ay*ay + 4*bx*cx - 8*bx*bx + 4*by*cy - 8*by*by) + 
+t*t*t*t*(-4*ax*bx + 2*ax*cx + ax*ax - 4*ay*by + 2*ay*cy + ay*ay - 4*bx*cx + 4*bx*bx - 4*by*cy + 4*by*by + cx*cx + cy*cy)
+
+Quartic for D
+-2*ax*dx + ax*ax - 2*ay*dy + ay*ay + dx*dx + dy*dy + 
+t*(4*ax*bx + 4*ax*dx - 4*ax*ax + 4*ay*by + 4*ay*dy - 4*ay*ay - 4*bx*dx - 4*by*dy) + 
+t*t*(-12*ax*bx + 2*ax*cx - 2*ax*dx + 6*ax*ax - 12*ay*by + 2*ay*cy - 2*ay*dy + 6*ay*ay + 4*bx*dx + 4*bx*bx + 4*by*dy + 4*by*by - 2*cx*dx - 2*cy*dy) + 
+t*t*t*(12*ax*bx - 4*ax*cx - 4*ax*ax + 12*ay*by - 4*ay*cy - 4*ay*ay + 4*bx*cx - 8*bx*bx + 4*by*cy - 8*by*by) + 
+t*t*t*t*(-4*ax*bx + 2*ax*cx + ax*ax - 4*ay*by + 2*ay*cy + ay*ay - 4*bx*cx + 4*bx*bx - 4*by*cy + 4*by*by + cx*cx + cy*cy)
