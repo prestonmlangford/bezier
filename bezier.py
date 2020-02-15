@@ -152,14 +152,45 @@ def minima(A,B,C,D):
     
     return bez(tm,A,B,C)
     
+"""
+Xiao-Diao Chen, Yin Zhou, Zhenyu Shu, Hua Su, Jean-Claude Paul. Improved Algebraic Algorithm
+On Point Projection For Bézier Curves. Proceedings of the Second International Multi-Symposiums
+on Computer and Computational Sciences (IMSCCS 2007), The University of Iowa, Iowa City, Iowa,
+USA, Aug 2007, Iowa, United States. pp.158-163, ff10.1109/IMSCCS.2007.17ff. ffinria-00518379f
 
+dot(P-Z(tc),Z'(tc)) = 0
+"""
+
+
+def raphson(A,B,C,D):
+    Alpha = add(sub(A,mul(2,B)),C)
+    Beta  = mul(2,sub(B,A))
+    Gamma = A
     
-
+    t = 0.0
+    tn = 0.5
+    tol = 0.001
+    while abs(t-tn) > tol:
+        t = tn
+        print(t)
+        Zpp = Alpha
+        Zp = add(mul(t,Alpha),Beta)
+        Z = add(mul(t,Zp),Gamma)
+        V = sub(B,Z)
+        f = dot(V,Zp)
+        print(f)
+        fp = dot(V,Zpp)-dot(Zp,Zp)
+        tn = t - f/fp
+        
+    
+    return bez(tn,A,B,C)
+    
 A = (1.2,0.2)
 B = (1.2,1.0)
 C = (1.6,0.2)
 D = (1.3,0.4)
 P = minima(A,B,C,D)
+#P = raphson(A,B,C,D)
 
 print(P)
 
