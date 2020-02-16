@@ -1,4 +1,11 @@
-from sympy import *
+import sympy
+from sympy import expand
+from sympy import collect
+from sympy import collect
+from sympy import symbols
+from sympy import init_printing
+from sympy import Symbol
+from sympy import diff
 import math
 
 def algebras():
@@ -131,6 +138,7 @@ def bez(t,A,B,C):
     return add(add(mul((1-t)*(1-t),A),mul(2*(1-t)*t,B)),mul(t*t,C))
 
 def minima(A,B,C,D):
+    
     #first find critical point
     #this is garaunteed to be a unimodal function
     Alpha = add(sub(A,mul(2,B)),C)
@@ -142,6 +150,7 @@ def minima(A,B,C,D):
     print(P)
     #now find which side of the critial line D is on
     #then minimize distance to D on the sub-interval
+    #I found examples where the "critical point" does not correspond to the middle root
     f = lambda t: dist(t,Alpha,Beta,sub(A,D))
     if det(A,B,P)*det(D,B,P) >= 0:
         print("left")
@@ -166,16 +175,16 @@ def raphson(A,B,C,D):
     Alpha = add(sub(A,mul(2,B)),C)
     Beta  = mul(2,sub(B,A))
     Gamma = A
-    
+
     t = 0.0
     tn = 0.5
     tol = 0.001
     while abs(t-tn) > tol:
         t = tn
         print(t)
-        Zpp = Alpha
-        Zp = add(mul(t,Alpha),Beta)
-        Z = add(mul(t,Zp),Gamma)
+        Zpp = mul(2,Alpha)
+        Zp = add(Beta,mul(2*t,Alpha))
+        Z = add(Gamma,mul(t,add(Beta,mul(t,Alpha))))
         V = sub(B,Z)
         f = dot(V,Zp)
         print(f)
@@ -184,13 +193,65 @@ def raphson(A,B,C,D):
         
     
     return bez(tn,A,B,C)
+
+
+def halley(A,B,C,D):
+    Alpha = add(sub(A,mul(2,B)),C)
+    Beta  = mul(2,sub(B,A))
+    Gamma = A
+    minima = []
+
+    for t0 in [0.0,1.0]:
+        tn = t0
+        t = 1-tn
+        tol = 0.001
+        left = tn < 0.5
+        right = tn > 0.5
+        while abs(t-tn) > tol:
+            t = tn        
+            Z   = add(Gamma,mul(t,add(Beta,mul(t,Alpha))))
+            Zp  = add(Beta,mul(2*t,Alpha))
+            Zpp = mul(2,Alpha) #This could be moved out of the loop.  Does not depend on t.
+            DZ  = sub(D,Z)
+            g   = dot(DZ,Zp)# you can check the sign of g on the first pass to see if the root is in the interval
+            gp  = dot(DZ,Zpp)-dot(Zp,Zp)
+            gpp = -3*dot(Zp,Zpp)
+            tn = t - 2*g*gp/(2*gp*gp-g*gpp)
+            print(tn)
+        minima.append((t,dot(DZ,DZ)))
     
-A = (1.2,0.2)
-B = (1.2,1.0)
-C = (1.6,0.2)
-D = (1.3,0.4)
-P = minima(A,B,C,D)
+    #PMLFIXME needs to check and make sure to and t1 are in the interval
+    (t0,d0) = minima[0]
+    (t1,d1) = minima[1]
+
+    if d0 < d1:
+        t = t0
+    else:
+        t = t1
+
+    return bez(t,A,B,C)
+
+"""
+            # this means the root is not in the interval, and the endpoint is a local minima
+            if left:
+                print("left")
+                left = False
+                if g <= 0.0:
+                    break
+            if right:
+                print("right")
+                right = False
+                if g >= 0.0:
+                    break
+            
+"""
+A = (1.2,1.0)
+B = (1.2,1.4)
+C = (1.6,0.0)
+D = (1.24,1.03)
+#P = minima(A,B,C,D)
 #P = raphson(A,B,C,D)
+P = halley(A,B,C,D)
 
 print(P)
 
