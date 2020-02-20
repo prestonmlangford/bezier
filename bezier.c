@@ -1,5 +1,6 @@
 typedef vec2;
 #define gpoly(t) fma(fma(fma(h,t,i),t,j),t,k)
+#define zpoly(t) fma(fma(Alpha,t,Beta),t,Gamma)
 
 float halley(float t, float h,float i,float j,float k){
     float gpp,gp,g = 1;
@@ -37,34 +38,35 @@ float min_distance(vec2 A,vec2 B,vec2 C,vec2 D){
     float g0 = k;
     float g1 = h+i+j+k;
     float gv = gpoly(v);
-    float sqrtphi = sqrt(phi);
-    float l = v - sqrtphi;
-    float r = v + sqrtphi;
-    float gl = gpoly(l);
-    float gr = gpoly(r);
     
     if (phi > 0){
         
+        float sqrtphi = sqrt(phi);
+        float l = v - sqrtphi;
+        float r = v + sqrtphi;
+        float gl = gpoly(l);
+        float gr = gpoly(r);
+            
         
-
+        int lm = ((l > 0) && (gl > 0) && (g0 < 0) && (l < 1)) || ((l > 1) && (g0 < 0) && (g1 > 0));
+        int rm = ((r < 1) && (gr < 0) && (g1 > 0) && (r > 0)) || ((r < 0) && (g0 < 0) && (g1 > 0));
+        int ls = gv > 0;
+        int rs = 1-ls;
+        float t;
         
-        lm = ((l > 0) and (gl > 0) and (g0 < 0) and (l < 1)) or ((l > 1) and (g0 < 0) and (g1 > 0))
-        rm = ((r < 1) and (gr < 0) and (g1 > 0) and (r > 0)) or ((r < 0) and (g0 < 0) and (g1 > 0))
-        ls = gv > 0
-        rs = not ls
-        
-        ops += 18
-
-        if ls and lm:
-            t =  halley(v-2*sqrtphi,g,gp,gpp,tol)
-        elif rs and rm:
-            t =  halley(v+2*sqrtphi,g,gp,gpp,tol)
-        elif ls and rm:
-            m = halley(v+2*sqrtphi,g,gp,gpp,tol)
-            Zm = Z(m)
-            Z0 = sub(A,D)
-            t =  0 if dot(Z0,Z0) < dot(Zm,Zm) else m
-        elif rs and lm:
+        if(ls && lm){
+            float t = halley(v-2*sqrtphi,h,i,j,k);
+            return length(zpoly(t));
+        }
+        else if(rs && rm){
+            float t = halley(v+2*sqrtphi,h,i,j,k);
+            return length(zpoly(t));
+        }
+        else if(ls && rm){
+            t =  halley(v+2*sqrtphi,h,i,j,k);
+            return min(length(zpoly(t)),length(Gamma));
+        }
+        else q1 `if rs && lm:
             m = halley(v-2*sqrtphi,g,gp,gpp,tol)
             Zm = Z(m)
             Z1 = sub(C,D)
