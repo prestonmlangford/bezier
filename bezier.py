@@ -125,7 +125,9 @@ def fusqrt(x):
     # returns upper bound for sqrt
     return 0.220970869120796 + x*(1.32582521472478 + x*(-0.883883476483184 + x*0.353553390593274))
 
-
+# http://www.pouet.net/topic.php?which=9119&page=1
+# this seems like a good exact solution which is faster than 
+# iteratively solving for the roots
 
 # From microsoft research paper for comparison purposes
 # Find vector v given pixel 𝑝=(0,0) and Bézier points b0,b1,b2
