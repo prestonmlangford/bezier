@@ -4,46 +4,16 @@
 
 float area(vec2 a, vec2 b, vec2 c) 
 { 
-    return abs(a.x*(b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y));
+    return a.x*(b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y);
 } 
 
-float linear_sd(vec2 uv, vec2 p0, vec2 p1){
-    vec2 v = normalize(p0-p1);
-    vec2 n = vec2(v.y,-v.x);
-    return dot(n,uv-p0);
+float approx_distance(vec2 p, vec2 a, vec2 b, vec2 c) {
+    float alpha = area(p,b,a);
+    float beta  = area(p,c,b);
+    float gamma = area(p,a,c);
+    
+    return 4.0*alpha*beta-gamma*gamma;
 }
-
-mat2 inv(mat2 m){
-	return mat2(m[1][1],-m[0][1],-m[1][0],m[0][0])/(m[0][0]*m[1][1]-m[1][0]*m[0][1]);
-}
-
-
-float bezier_sd(vec2 uv, vec2 p0, vec2 p1, vec2 p2){
-
-	const mat2 trf1 = mat2(-1, 2, 1, 2);
-	mat2 trf2 = inv(mat2(p0-p1, p2-p1));
-	mat2 trf=trf1*trf2;
-
-	uv-=p1;
-	vec2 xy=trf*uv;
-	xy.y-=1.;
-
-	vec2 gradient;
-	gradient.x=2.*trf[0][0]*(trf[0][0]*uv.x+trf[1][0]*uv.y)-trf[0][1];
-	gradient.y=2.*trf[1][0]*(trf[0][0]*uv.x+trf[1][0]*uv.y)-trf[1][1];
-
-	return (xy.x*xy.x-xy.y)/length(gradient);
-}
-
-
-
-float corrected_sd(vec2 uv, vec2 p0, vec2 p1, vec2 p2){
-    float b = bezier_sd(uv,p0,p1,p2);
-    float l = linear_sd(uv,p0,p2);
-    float t = tanh(abs(2.1*l));
-    return t*b+(1.0-t)*l;
-}
-
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
 	vec2 xy = fragCoord.xy;
