@@ -7,6 +7,8 @@ from sympy import init_printing
 from sympy import Symbol
 from sympy import diff
 import math
+import matplotlib.pyplot as plt
+import numpy as np
 
 def algebras():
     ax,bx,cx,ay,by,cy,t,dx,dy = symbols('ax bx cx ay by cy t dx dy')
@@ -251,21 +253,146 @@ def min_distance(A,B,C,D,tol = 0.01):
     return math.sqrt(dot(P,P))
 
 
-A = (1.94,0.55)
-B = (2.32,0.6)
-C = (2.42,0.35)
-D = (2.1,0.3)
+def bisection_method(A,B,C,D):
+    global ops
+    # 2nd order polynomial coefficients for the bezier curve Z
+    Alpha = add(sub(A,mul(2,B)),C)
+    Beta  = mul(2,sub(B,A))
+    Gamma = sub(A,D)
+
+    # 3rd order polynomial coefficients for derivative of distance to the bezier curve "g"
+    h = 2*dot(Alpha,Alpha)
+    i = 3*dot(Alpha,Beta)
+    j = 2*dot(Alpha,Gamma)+dot(Beta,Beta)
+    k = dot(Beta,Gamma)
+    h3 = 3*h
+    h6 = 6*h
+    i2 = 2*i
+    #these can be implemented with the fma instruction to make them more efficient
+    Z   = lambda t: add(Gamma,mul(t,add(Beta,mul(t,Alpha))))
+    g   = lambda t: k+t*(j+t*(i+t*h))
+    gp  = lambda t: j+t*(i2+t*h3)
+    gpp = lambda t: i2+t*h6
+    
+    # v is the vertex of the parabola Z
+    v = -i/h3
+
+    # symmetry about the vertex for zeros of the 2nd derivative of distance
+    phi = v*v-j/h3
+    
+    g0 = k
+    g1 = h+i+j+k
+    gv = g(v)
+    
+    ops += 15
+
+    # when phi > 0, there are local maxima and minima of g.  These could produce zeros.
+    if phi > 0:# could also use g'(v) < 0, but why waste the clock cycles when I need phi anyway
+        sqrtphi = math.sqrt(phi)
+        
+        l = v - sqrtphi
+        r = v + sqrtphi
+        gl = g(l)
+        gr = g(r)
+        
+        lm = ((l > 0) and (gl > 0) and (g0 < 0) and (l < 1)) or ((l > 1) and (g0 < 0) and (g1 > 0))
+        rm = ((r < 1) and (gr < 0) and (g1 > 0) and (r > 0)) or ((r < 0) and (g0 < 0) and (g1 > 0))
+        ls = gv > 0
+        rs = not ls
+        
+        ops += 18
+
+        if ls and lm:
+            t =  halley(v-2*sqrtphi,g,gp,gpp,tol)
+        elif rs and rm:
+            t =  halley(v+2*sqrtphi,g,gp,gpp,tol)
+        elif ls and rm:
+            m = halley(v+2*sqrtphi,g,gp,gpp,tol)
+            Zm = Z(m)
+            Z0 = sub(A,D)
+            t =  0 if dot(Z0,Z0) < dot(Zm,Zm) else m
+        elif rs and lm:
+            m = halley(v-2*sqrtphi,g,gp,gpp,tol)
+            Zm = Z(m)
+            Z1 = sub(C,D)
+            t =  1 if dot(Z1,Z1) < dot(Zm,Zm) else m
+        else:
+            Z0 = sub(A,D)
+            Z1 = sub(C,D)
+            t =  0 if dot(Z0,Z0) < dot(Z1,Z1) else 1
+    else:
+        if g0 > 0:
+            t =  0
+        elif g1 < 0:
+            t =  1
+        elif gv > 0:
+            t =  halley(0,g,gp,gpp,tol)
+        else:
+            t =  halley(1,g,gp,gpp,tol)
+
+    P = Z(t)
+    return math.sqrt(dot(P,P))
+
+
+
+#A = (1.94,0.55)
+#B = (2.32,0.6)
+#C = (2.42,0.35)
+#D = (2.1,0.3)
 #P = minima(A,B,C,D)
 #P = raphson(A,B,C,D)
 
-print("Halley Method")
-ops = 0
-P = min_distance(A,B,C,D)
-print("Min Distance: {}".format(P))
-print("Add/Multiplies: {}".format(ops))
+#print("Halley Method")
+#ops = 0
+#P = min_distance(A,B,C,D)
+#print("Min Distance: {}".format(P))
+#print("Add/Multiplies: {}".format(ops))
+#
+#print("Inversion Method")
+#ops = 0
+#P = get_distance_vector(A,B,C,D)
+#print("Min Distance: {}".format(P))
+#print("Add/Multiplies: {}".format(ops))
 
-print("Inversion Method")
-ops = 0
-P = get_distance_vector(A,B,C,D)
-print("Min Distance: {}".format(P))
-print("Add/Multiplies: {}".format(ops))
+
+def tellme(s):
+    print(s)
+    plt.title(s, fontsize=16)
+    plt.draw()
+
+plt.clf()
+plt.setp(plt.gca(), autoscale_on=False)
+
+while True:
+    pts = []
+    while len(pts) < 3:
+        tellme('Select control points with mouse')
+        pts = np.asarray(plt.ginput(3))
+    
+    N = 100
+    A,B,C = pts
+    X = np.zeros(N)
+    Y = np.zeros(N)
+    Z = np.zeros((N,N))
+    for i in range(0,N):
+        for j in range(0,N):
+            x,y = i/N,j/N
+            X[j] = x
+            Y[i] = y
+            Z[j,i] = min_distance(A,B,C,(x,y))
+    
+    plt.imshow(
+        Z, 
+        extent=[0, 1, 0, 1], 
+        origin='lower',
+        cmap='RdGy'
+    )
+    plt.axis(aspect='image')
+
+    tellme('Click mouse to start over.')
+
+    if plt.waitforbuttonpress():
+        break
+
+    
+    plt.cla()
